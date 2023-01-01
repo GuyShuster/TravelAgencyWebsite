@@ -1,5 +1,4 @@
 import Ajv from 'ajv/dist/jtd.js';
-import _ from 'lodash';
 import Flight from '../models/flight.model.js';
 
 
@@ -74,6 +73,11 @@ export async function getFlightById(flightId) {
 }
 
 export async function addFlight(flight) {
-    const { _id: flightId } = await Flight.create(flight);
-    return flightId;
+    const createdFlight = await Flight.create(flight);
+    return createdFlight?._id;
+}
+
+export async function deleteFlight(flightId) {
+    const deletedFlight = await Flight.findByIdAndDelete(flightId);
+    return deletedFlight?._id;
 }

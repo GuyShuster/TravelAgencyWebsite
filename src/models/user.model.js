@@ -9,12 +9,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    userType: {
-        type: Number,
-        required: true,
-    },
-    cookie: {
-        type: String,
+    isAdmin: {
+        type: Boolean,
+        default: false,
     },
     flights: [
         mongoose.Schema.Types.ObjectId,

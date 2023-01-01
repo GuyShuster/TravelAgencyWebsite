@@ -1,12 +1,19 @@
 import express from 'express';
-import { addFlight, getFlightById, checkFlightFilter, getNextFlights } from '../controllers/flight.controller.js';
+import mongoose from 'mongoose';
+import asyncHandler from 'express-async-handler';
+import { addFlight, getFlightById, checkFlightFilter, getNextFlights, deleteFlight } from '../controllers/flight.controller.js';
 import config from '../config.js';
 import { Types } from 'mongoose';
+
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+function isFlightIdValid(flightId) {
+    return !Types.ObjectId.isValid(flightId);
+}
+
+router.get('/', asyncHandler(async (req, res) => {
     const filter = req.body;
-    
+
     try {
         checkFlightFilter(filter);
     } catch (error) {
@@ -14,47 +21,59 @@ router.get('/', async (req, res) => {
         return;
     }
 
-    try {
-        const flights = await getNextFlights(filter, config.maxFlightsPerPage);
-        res.json(flights);
-    } catch (error) {
-        res.status(500).json({ error: error });
-    }
-});
+    const flights = await getNextFlights(filter, config.maxFlightsPerPage);
+    res.json(flights);
+}));
 
-router.get('/:flightId', async (req, res) => {
+router.get('/:flightId', asyncHandler(async (req, res) => {
     const { flightId } = req.params;
 
-    if (!Types.ObjectId.isValid(flightId)) {
+    if (isFlightIdValid(flightId)) {
         res.status(400).json('Invalid flight id');
         return;
     }
-    
-    try {
-        const flight = await getFlightById(flightId);
 
-        if (!flight) {
-            res.status(404).json(`No flight with id ${flightId} has been found`);
-        } else {
-            res.json(flight);
-        }
-    } catch (error) {
-        res.status(500).json({ error: error });
+    const flight = await getFlightById(flightId);
+
+    if (!flight) {
+        res.status(404).json(`No flight with id ${flightId} has been found`);
+    } else {
+        res.json(flight);
     }
-});
+}));
 
-// TODO: maybe add an 'already exists validation'
-router.post('/', async (req, res) => {
+// TODO validate mongoose schema
+router.post('/', asyncHandler(async (req, res) => {
     const flight = req.body;
-    
+
     try {
         const flightId = await addFlight(flight);
         res.status(201).json(flightId);
     } catch (error) {
-        res.status(500).json({ error: error });
+        if (error instanceof mongoose.Error.ValidationError) {
+            res.status(400).json(error.message);
+        } else {
+            throw error;
+        }
     }
-});
+}));
 
+router.delete('/:flightId', asyncHandler(async (req, res) => {
+    const { flightId } = req.params;
 
+    if (isFlightIdValid(flightId)) {
+        res.status(400).json('Invalid flight id');
+        return;
+    }
+
+    const deletedFlightId = await deleteFlight(flightId);
+
+    if (!deletedFlightId) {
+        res.status(404).json(`Flight with id ${flightId} wasn't found`);
+        return;
+    }
+
+    res.status(200);
+}));
 
 export default router;
