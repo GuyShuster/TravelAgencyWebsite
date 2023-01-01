@@ -2,16 +2,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import process from 'process';
 import config from './config.js';
-import birds from './routes/test-a.js';
-import dogs from './routes/test-b.js';
+import test from './routes/test-route.js';
 
 function initAppObject(app) {
     app.use(express.json());
 }
 
 function addRoutes(app) {
-    app.use('/birds', birds);
-    app.use('/dogs', dogs);
+    app.use('/test', test);
     app.get('/', (req, res) => {
         res.send('Hello World!')
     });
