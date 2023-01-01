@@ -5,7 +5,6 @@ import { addUser, validateUserSchema, findUser, generatePasswordHash } from '../
 import config from '../config.js'
 
 const router = express.Router();
-const COOKIE_NAME = 'auth';
 
 router.post('/sign-up', asyncHandler(async (req, res) => {
     const user = req.body;
@@ -45,10 +44,14 @@ router.get('/login', asyncHandler(async (req, res) => {
         return;
     }
     
-    const cookie = jwt.sign(user.userName, config.jwtSecret);
-    res.cookie(COOKIE_NAME, cookie).status(200).json(`User ${user.userName} logged in successfuly`);
+    const cookie = jwt.sign({ userName: user.userName, isAdmin: user.isAdmin }, config.jwtSecret);
+    res.cookie(config.authCookieName, cookie).status(200).json(`User ${user.userName} logged in successfuly`);
 }));
 
+// TODO:
+// router.post('/logout', asyncHandler(async (req, res) => {
+
+// }));
 
 
 

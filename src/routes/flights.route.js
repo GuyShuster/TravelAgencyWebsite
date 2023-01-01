@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import { addFlight, getFlightById, checkFlightFilter, getNextFlights, deleteFlight } from '../controllers/flight.controller.js';
+import { verifyAuthentication, verifyAdmin } from '../middleware/auth.middleware.js';
 import config from '../config.js';
 import { Types } from 'mongoose';
 
@@ -43,7 +44,7 @@ router.get('/:flightId', asyncHandler(async (req, res) => {
 }));
 
 // TODO validate mongoose schema
-router.post('/', asyncHandler(async (req, res) => {
+router.post('/', verifyAuthentication, verifyAdmin, asyncHandler(async (req, res) => {
     const flight = req.body;
 
     try {
