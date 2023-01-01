@@ -2,17 +2,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import process from 'process';
 import config from './config.js';
-import test from './routes/test-route.js';
+import flights from './routes/flights.route.js';
 
 function initAppObject(app) {
     app.use(express.json());
 }
 
-function addRoutes(app) {
-    app.use('/test', test);
-    app.get('/', (req, res) => {
-        res.send('Hello World!')
-    });
+function addApiRoutes(app) {
+    app.use('/api/flights', flights);
 }
 
 async function connectToDB(dbURL) {
@@ -31,7 +28,7 @@ async function main() {
     const app = express();
 
     initAppObject(app);
-    addRoutes(app);
+    addApiRoutes(app);
     await connectToDB(config.dbURL);
     await startListening(app, config.port);
 
