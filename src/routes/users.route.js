@@ -1,10 +1,12 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import asyncHandler from 'express-async-handler';
 import { addUser, validateUserSchema, findUser, generatePasswordHash } from '../controllers/user.controller.js';
+import config from '../config.js'
 
 const router = express.Router();
+const COOKIE_NAME = 'auth';
 
-// TODO: add only one admin support
 router.post('/sign-up', asyncHandler(async (req, res) => {
     const user = req.body;
     
@@ -43,9 +45,10 @@ router.get('/login', asyncHandler(async (req, res) => {
         return;
     }
     
-    res.status(200).json(`User ${user.userName} logged in successfuly`);
-    //TODO: add cookie
+    const cookie = jwt.sign(user.userName, config.jwtSecret);
+    res.cookie(COOKIE_NAME, cookie).status(200).json(`User ${user.userName} logged in successfuly`);
 }));
+
 
 
 
