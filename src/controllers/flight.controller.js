@@ -61,6 +61,11 @@ export function checkFlightFilter(filter) {
     }
 }
 
+export async function validateFlightSchema(flight) {
+    const flightDoc = new Flight(flight);
+    await flightDoc.validate();
+}
+
 export async function getNextFlights(filter, maxAmount) {
     const translatedFilter = translateFilter(filter);
     const flights = await Flight.find(translatedFilter).sort({ _id: -1 }).limit(maxAmount);

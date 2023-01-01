@@ -1,7 +1,6 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
-import { addFlight, getFlightById, checkFlightFilter, getNextFlights, deleteFlight } from '../controllers/flight.controller.js';
+import { addFlight, getFlightById, checkFlightFilter, getNextFlights, deleteFlight, validateFlightSchema } from '../controllers/flight.controller.js';
 import { verifyAuthentication, verifyAdmin } from '../middleware/auth.middleware.js';
 import config from '../config.js';
 import { Types } from 'mongoose';
@@ -43,23 +42,21 @@ router.get('/:flightId', asyncHandler(async (req, res) => {
     }
 }));
 
-// TODO validate mongoose schema
 router.post('/', verifyAuthentication, verifyAdmin, asyncHandler(async (req, res) => {
     const flight = req.body;
 
     try {
-        const flightId = await addFlight(flight);
-        res.status(201).json(flightId);
+        await validateFlightSchema(flight);
     } catch (error) {
-        if (error instanceof mongoose.Error.ValidationError) {
-            res.status(400).json(error.message);
-        } else {
-            throw error;
-        }
+        res.status(400).json(error.message);
+        return;
     }
+
+    const flightId = await addFlight(flight);
+    res.status(201).json(flightId);
 }));
 
-router.delete('/:flightId', asyncHandler(async (req, res) => {
+router.delete('/:flightId', verifyAuthentication, verifyAdmin, asyncHandler(async (req, res) => {
     const { flightId } = req.params;
 
     if (isFlightIdValid(flightId)) {

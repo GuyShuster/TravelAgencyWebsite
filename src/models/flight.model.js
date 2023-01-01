@@ -23,6 +23,11 @@ const flightSchema = new mongoose.Schema({
         required: true,
         min: 0,
     },
+    direction: {
+        type: String,
+        enum: ['one-way', 'two-way'],
+        required: true,
+    }
 });
 
 const Flight = mongoose.model('Flight', flightSchema);
