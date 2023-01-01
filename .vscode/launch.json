@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "name": "Launch server",
+            "runtimeExecutable": "npx",
+            "args": ["${workspaceFolder}/src/app.js",],
+            "program": "nodemon",
+            "request": "launch",
+            "restart": true,
+            "type": "node"
+        }
+
+    ]
+}
