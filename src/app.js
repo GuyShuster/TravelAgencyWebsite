@@ -3,25 +3,31 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import process from 'process';
 import console from 'console';
+import path from 'path';
 import config from './config.js';
+import { fileURLToPath } from 'url';
 import flights from './routes/flights.route.js';
 import users from './routes/users.route.js';
+import index from './routes/index.route.js';
 
 function initAppObject(app) {
     app.use(express.json());
     app.use(cookieParser());
+    app.set('view engine', 'pug');
+    app.set('views', path.join(path.dirname(fileURLToPath(import.meta.url)), './views'));
 }
 
 function addApiRoutes(app) {
     app.use('/api/flights', flights);
     app.use('/api/users', users);
+    app.use('/', index);
 }
 
 function addServerErrorWrapper(app) {
     // eslint-disable-next-line
     app.use((err, req, res, next) => {
         console.error(err.stack);
-        res.status(500).send('Uncaught server error')
+        res.status(500).send('Uncaught server error');
     });
 }
 

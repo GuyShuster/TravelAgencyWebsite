@@ -41,6 +41,7 @@ function translateFilter(rawFilter) {
                 ...rawFilter.priceRange?.to && { $lte: rawFilter.priceRange?.to },
             }
         }),
+        // TODO: add direction + number of available seats
     };
 
     const translatedFilter = Object.keys(rawFilter).reduce((prevTranslatedFilter, currentRawFilterEntry) =>
