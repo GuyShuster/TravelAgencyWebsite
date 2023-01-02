@@ -1,3 +1,6 @@
-.container#home
-    h1 Hello World
-script(src="/js/home.bundle.js")
+script(src="https://unpkg.com/vue@3/dist/vue.global.js")
+script(src="/index.js", type="module", defer)
+link(rel="stylesheet", href="/css/style.css")
+
+
+#app {{ message }}

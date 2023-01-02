@@ -10,11 +10,14 @@ import flights from './routes/flights.route.js';
 import users from './routes/users.route.js';
 import index from './routes/index.route.js';
 
+const __dirname = path.join(path.dirname(fileURLToPath(import.meta.url)));
+
 function initAppObject(app) {
     app.use(express.json());
     app.use(cookieParser());
+    app.use(express.static(path.join(__dirname, './client')));
     app.set('view engine', 'pug');
-    app.set('views', path.join(path.dirname(fileURLToPath(import.meta.url)), './views'));
+    app.set('views', path.join(__dirname, './views'));
 }
 
 function addApiRoutes(app) {
