@@ -1,7 +1,6 @@
 import Ajv from 'ajv/dist/jtd.js';
 import Flight from '../models/flight.model.js';
 
-
 const ajv = new Ajv();
 const flightFilterSchema = {
     optionalProperties: {
@@ -19,6 +18,14 @@ const flightFilterSchema = {
                 from: { type: 'uint32' },
                 to: { type: 'uint32' },
             }
+        },
+        seatsLeft: {
+            type: 'uint32',
+        },
+        direction: {
+            elements: { 
+                type: 'string' 
+            },
         },
     },
 };
@@ -41,16 +48,14 @@ function translateFilter(rawFilter) {
                 ...rawFilter.priceRange?.to && { $lte: rawFilter.priceRange?.to },
             }
         }),
-        // TODO: add direction + number of available seats
+        seatsLeft: () => ({ seatsLeft: { $gte: rawFilter.seatsLeft } }),
+        direction: () => ({ direction: { $in: rawFilter.direction } }),
     };
 
     const translatedFilter = Object.keys(rawFilter).reduce((prevTranslatedFilter, currentRawFilterEntry) =>
         ({ ...prevTranslatedFilter, ...filterTranslations[currentRawFilterEntry]() }), {});
 
-    return {
-        ...translatedFilter,
-        seatsLeft: { $gt: 0 }
-    };
+    return translatedFilter;
 }
 
 export function checkFlightFilter(filter) {
