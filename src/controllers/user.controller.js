@@ -32,3 +32,7 @@ export async function findUser(incomingUser) {
     const user = await User.findOne({ userName: incomingUser.userName });
     return user;
 }
+
+export async function updateUserFlight(userName, flightId, numOfSeats) {
+    await User.findOneAndUpdate({ userName: userName }, { $push: { flights: { flightId, numOfSeats } } });
+}

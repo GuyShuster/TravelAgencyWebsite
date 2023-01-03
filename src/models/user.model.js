@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+const flightSubSchema = new mongoose.Schema({
+    flightId: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+    numOfSeats: {
+        type: Number,
+    }
+}, { _id: false });
+
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
@@ -14,8 +23,22 @@ const userSchema = new mongoose.Schema({
         default: false,
     },
     flights: [
-        mongoose.Schema.Types.ObjectId,
+        flightSubSchema
     ],
+    creditCard: {
+        number: {
+            type: String,
+        },
+        cvv: {
+            type: String,
+        },
+        expiryMonth: {
+            type: Number,
+        },
+        expiryYear: {
+            type: Number,
+        },
+    }
 });
 
 const User = mongoose.model('User', userSchema);

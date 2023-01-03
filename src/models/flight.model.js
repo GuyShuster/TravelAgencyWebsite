@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const flightSchema = new mongoose.Schema({
-    // TODO: maybe add image
     originCountry: {
         type: String,
         required: true,

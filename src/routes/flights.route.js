@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { addFlight, getFlightById, checkFlightFilter, getNextFlights, deleteFlight, validateFlightSchema } from '../controllers/flight.controller.js';
+import { addFlight, getFlightById, checkFlightFilter, getNextFlights, deleteFlight, validateFlightSchema, decreaseFlightSeats } from '../controllers/flight.controller.js';
+import { updateUserFlight } from '../controllers/user.controller.js';
 import { verifyAuthentication, verifyAdmin } from '../middleware/auth.middleware.js';
 import config from '../config.js';
 import { Types } from 'mongoose';
@@ -72,6 +73,32 @@ router.delete('/:flightId', verifyAuthentication, verifyAdmin, asyncHandler(asyn
     }
 
     res.status(200);
+}));
+
+router.put('/:flightId/order-flight', verifyAuthentication, asyncHandler(async (req, res) => {
+    const { flightId } = req.params;
+    const { numOfTickets, creditCard } = req.body;
+
+    if (!numOfTickets || !creditCard.number || !creditCard.cvv || !creditCard.expiryMonth || !creditCard.expiryYear) {
+        res.status(400).json('Missing credit card info or numOfTickets');
+        return;
+    }
+
+    try {
+        await decreaseFlightSeats(flightId, numOfTickets);
+    } catch (error) {
+        res.status(404).json(error.message);
+        return;
+    }
+
+    try {
+        await updateUserFlight(req.user, flightId, numOfTickets);
+    } catch (error) {
+        res.status(404).json(error.message);
+        return;
+    }
+
+    res.status(200).json(`Ordered flight ${flightId} for user ${req.user} successfully`);
 }));
 
 export default router;

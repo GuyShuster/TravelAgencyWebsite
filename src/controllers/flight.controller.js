@@ -23,8 +23,8 @@ const flightFilterSchema = {
             type: 'uint32',
         },
         direction: {
-            elements: { 
-                type: 'string' 
+            elements: {
+                type: 'string'
             },
         },
     },
@@ -58,6 +58,12 @@ function translateFilter(rawFilter) {
     return translatedFilter;
 }
 
+export async function getNextFlights(filter, maxAmount) {
+    const translatedFilter = translateFilter(filter);
+    const flights = await Flight.find(translatedFilter).sort({ _id: -1 }).limit(maxAmount);
+    return flights;
+}
+
 export function checkFlightFilter(filter) {
     const valid = validator(filter);
 
@@ -70,12 +76,6 @@ export function checkFlightFilter(filter) {
 export async function validateFlightSchema(flight) {
     const flightDoc = new Flight(flight);
     await flightDoc.validate();
-}
-
-export async function getNextFlights(filter, maxAmount) {
-    const translatedFilter = translateFilter(filter);
-    const flights = await Flight.find(translatedFilter).sort({ _id: -1 }).limit(maxAmount);
-    return flights;
 }
 
 export async function getFlightById(flightId) {
@@ -91,4 +91,18 @@ export async function addFlight(flight) {
 export async function deleteFlight(flightId) {
     const deletedFlight = await Flight.findByIdAndDelete(flightId);
     return deletedFlight?._id;
+}
+
+export async function decreaseFlightSeats(flightId, numOfTickets) {
+    const flight = await Flight.findOne({ _id: flightId });
+    
+    if (!flight) {
+        throw new Error('Could not find flight');
+    }
+
+    if (flight.seatsLeft < numOfTickets) {
+        throw new Error('Not enough seats');
+    }
+
+    await Flight.findOneAndUpdate({ _id: flightId }, { $inc: { seatsLeft: -numOfTickets } });
 }
