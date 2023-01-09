@@ -12,7 +12,7 @@ function isFlightIdValid(flightId) {
     return !Types.ObjectId.isValid(flightId);
 }
 
-router.get('/', asyncHandler(async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
     const filter = req.body;
 
     try {
@@ -21,8 +21,11 @@ router.get('/', asyncHandler(async (req, res) => {
         res.status(400).json(`Flight filter structure error: ${error.message}`);
         return;
     }
+    //for flights with pagination
+    //const flights = await getNextFlights(filter, config.maxFlightsPerPage);
 
-    const flights = await getNextFlights(filter, config.maxFlightsPerPage);
+    //for all flights
+    const flights = await getNextFlights(filter, filter.sortOption);
     res.json(flights);
 }));
 
@@ -43,9 +46,37 @@ router.get('/:flightId', asyncHandler(async (req, res) => {
     }
 }));
 
-router.post('/', verifyAuthentication, verifyAdmin, asyncHandler(async (req, res) => {
+router.post('/add-flight', verifyAuthentication, verifyAdmin, asyncHandler(async (req, res) => {
     const flight = req.body;
 
+    try {
+        await validateFlightSchema(flight);
+    } catch (error) {
+        res.status(400).json(error.message);
+        return;
+    }
+
+    const flightId = await addFlight(flight);
+    res.status(201).json(flightId);
+}));
+
+router.post('/random', verifyAuthentication, verifyAdmin, asyncHandler(async (req, res) => {
+
+    const countries = ["Canada", "China", "Denmark", "Israel", "Italy", "Japan", "Portugal", "Switzerland", "United States"];
+    let originIndex = Math.floor(Math.random()*countries.length);
+    let destIndex = Math.floor(Math.random()*countries.length);
+    while (originIndex==destIndex){
+        destIndex = Math.floor(Math.random()*countries.length);
+    }
+    let origin = countries[originIndex];
+    let dest = countries[destIndex];
+    let date = new Date() //create random date
+    let price = random //create random price
+    let seatsLeft = random //random seating
+    let directions = ["one-way", "two-way"];
+    let temp = Math.floor(Math.random()*directions.length);
+    dir = directions[temp];
+    //TODO:Finish
     try {
         await validateFlightSchema(flight);
     } catch (error) {

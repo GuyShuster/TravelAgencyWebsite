@@ -25,7 +25,7 @@ router.post('/sign-up', asyncHandler(async (req, res) => {
     }
 }));
 
-router.get('/login', asyncHandler(async (req, res) => {
+router.post('/login', asyncHandler(async (req, res) => {
     const incomingUser = req.body;
 
     if (!incomingUser.userName || !incomingUser.password) {

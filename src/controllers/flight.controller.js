@@ -4,9 +4,9 @@ import Flight from '../models/flight.model.js';
 const ajv = new Ajv();
 const flightFilterSchema = {
     optionalProperties: {
-        startingId: { type: 'string' },
         flyFrom: { type: 'string' },
         flyTo: { type: 'string' },
+        sortOption: { type: 'string' },
         dateRange: {
             optionalProperties: {
                 from: { type: 'timestamp' },
@@ -32,8 +32,19 @@ const flightFilterSchema = {
 const validator = ajv.compile(flightFilterSchema);
 
 function translateFilter(rawFilter) {
+    if (rawFilter.sortOption) {
+        delete rawFilter.sortOption;
+    }
+
+    if (rawFilter.dateRange && Object.keys(rawFilter.dateRange).length === 0) {
+        delete rawFilter.dateRange;
+    }
+
+    if (rawFilter.priceRange && Object.keys(rawFilter.priceRange).length === 0) {
+        delete rawFilter.priceRange;
+    }
+
     const filterTranslations = {
-        startingId: () => ({ _id: { $lt: rawFilter.startingId } }),
         flyFrom: () => ({ originCountry: rawFilter.flyFrom }),
         flyTo: () => ({ destinationCountry: rawFilter.flyTo }),
         dateRange: () => ({
@@ -58,9 +69,18 @@ function translateFilter(rawFilter) {
     return translatedFilter;
 }
 
-export async function getNextFlights(filter, maxAmount) {
+export async function getNextFlights(filter, sortOption) {
     const translatedFilter = translateFilter(filter);
-    const flights = await Flight.find(translatedFilter).sort({ _id: -1 }).limit(maxAmount);
+
+    const sortOptions = {
+        'Increasing price': { price: 1 },
+        'Decreasing price': { price: -1 },
+        'Most popular': { seatsLeft: -1 },
+        'Origin Country': { originCountry: 1 },
+        'Destination Country': { destinationCountry: 1 },
+    };
+
+    const flights = await Flight.find(translatedFilter).sort(sortOption ? sortOptions[sortOption] : { _id: -1 });
     return flights;
 }
 

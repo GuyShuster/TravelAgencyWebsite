@@ -1,3 +1,3 @@
-import MainComponent from './components/main.js'
+import MainComponent from './components/adminpanel.js'
 const { createApp } = Vue;
 createApp(MainComponent).mount('#app');
