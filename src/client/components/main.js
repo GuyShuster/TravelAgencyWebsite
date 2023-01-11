@@ -83,7 +83,7 @@ export default {
 				"Destination Country",
 			],
 			filter: {
-				seatsLeft: 2,
+				seatsLeft: 1,
 				dateRange: {
 
 				},
@@ -127,9 +127,9 @@ export default {
 			}
 
 			if (this.filter.seatsLeft) {
-				this.filter.seatsLeft = Math.max(this.filter.seatsLeft, 0);
+				this.filter.seatsLeft = Math.max(this.filter.seatsLeft, 1);
 			} else {
-				this.filter.seatsLeft = 2;
+				this.filter.seatsLeft = 1;
 			}
 
 			try {
