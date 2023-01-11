@@ -12,6 +12,8 @@ import index from './routes/index.route.js';
 import login from './routes/login.route.js';
 import signup from './routes/signup.route.js';
 import adminpanel from './routes/adminpanel.route.js';
+import logout from './routes/logout.route.js';
+import payment from './routes/payment.route.js';
 
 const __dirname = path.join(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -30,6 +32,8 @@ function addApiRoutes(app) {
     app.use('/login', login);
     app.use('/signup', signup);
     app.use('/adminpanel', adminpanel);
+    app.use('/logout', logout);
+    app.use('/payment', payment);
 }
 
 function addServerErrorWrapper(app) {

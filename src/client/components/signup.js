@@ -11,12 +11,18 @@ export default {
     <div class="txt_field">
             <input v-model="user.password" type="password" required style="text-align: center;" id = "mypassword" name = "password"  placeholder="Password">
             <span></span>
-           
     </div>
+    
+    <input v-model="user.isAdmin" class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+    <label class="form-check-label" for="flexCheckDefault">
+        &nbsp;&nbsp;Is admin
+    </label>
+
+    <br>
+    <br>
 
     <input type="button" value="Sign up" style="margin-bottom: -200px;" @click="signup">
     <div class="signup_link">
-    <input type="button" value="Sign in" style="background: red; margin-bottom: -200px;" onclick="location.href='/login'">
 
     </div>
     </form>

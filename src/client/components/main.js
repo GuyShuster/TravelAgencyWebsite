@@ -30,8 +30,9 @@ export default {
 					<option value="" disabled selected>Direction</option>
 					<option v-for="direction in directions"> {{ direction }}</option>
 				</select>
-				<input v-model="filter.priceRange.from" class="form-control me-2" type="number" placeholder="Min Price" aria-label="Search" style="width: 100px; margin-right: 10px;">
-				<input v-model="filter.priceRange.to" class="form-control me-2" type="number" placeholder="Max Price" aria-label="Search" style="width: 100px; margin-right: 10px;">
+				<input v-model="filter.priceRange.from" class="form-control me-2" type="number" placeholder="Min Price" aria-label="Search" style="width: 115px; margin-right: 10px;">
+				<input v-model="filter.priceRange.to" class="form-control me-2" type="number" placeholder="Max Price" aria-label="Search" style="width: 115px; margin-right: 10px;">
+				<input v-model="filter.seatsLeft" class="form-control me-2" type="number" placeholder="Num of Seats" aria-label="Search" style="width: 150px; margin-right: 10px;">
 				</ul>
 				<select v-model="filter.sortOption" id="sort" class="form-select" aria-label="Default select example" style="width: 200px; margin-right: 10px;">
 					<option value="" disabled selected>Sort By</option>
@@ -52,6 +53,7 @@ export default {
 					<th scope="col">Date</th>
 					<th scope="col">Direction</th>
 					<th scope="col">Price</th>
+					<th scope="col">Seats Left</th>
 				</tr>
 	  		</thead>
 	  		<tbody>
@@ -61,6 +63,7 @@ export default {
 					<th> {{ flight.flightDateTime }} </th>
 					<th> {{ flight.direction }} </th>
 					<th> {{ flight.price.$numberDecimal }} </th>
+					<th> {{ flight.seatsLeft }} </th>
 					<th><button type="button" class="btn btn-secondary" :id="flight._id"> Book </button></th>
 				</tr>
 			</tbody>
@@ -80,13 +83,14 @@ export default {
 				"Destination Country",
 			],
 			filter: {
+				seatsLeft: 2,
 				dateRange: {
 
 				},
 				priceRange: {
 
 				},
-			}
+			},
 		};
 	},
 	async mounted() {
@@ -96,11 +100,11 @@ export default {
 		this.directions = Array.from(new Set(this.flights.map(flight => flight.direction)));
 	},
 	methods: {
-		initFilter() {
+		initFilter(seatsLeft) {
 			this.filter = {
-				sortOption: 'No sorting',
+				seatsLeft,
 				dateRange: {
-
+	
 				},
 				priceRange: {
 
@@ -109,7 +113,9 @@ export default {
 		},
 		async searchFlights() {
 			if (this.filter.dateRange?.from) {
-				this.filter.dateRange.from = new Date(this.filter.dateRange.from);
+				const today = new Date();
+				const requestedDate = new Date(this.filter.dateRange.from);
+				this.filter.dateRange.from = today > requestedDate ? today : requestedDate;
 			}
 
 			if (this.filter.dateRange?.to) {
@@ -118,6 +124,12 @@ export default {
 
 			if (this.filter.direction) {
 				this.filter.direction = [this.filter.direction];
+			}
+
+			if (this.filter.seatsLeft) {
+				this.filter.seatsLeft = Math.max(this.filter.seatsLeft, 0);
+			} else {
+				this.filter.seatsLeft = 2;
 			}
 
 			try {
@@ -129,7 +141,7 @@ export default {
 					body: JSON.stringify(this.filter),
 				}).then((response) => response.json());
 			} finally {
-				this.initFilter();
+				this.initFilter(this.filter.seatsLeft);
 			}
 
 		},
@@ -139,7 +151,11 @@ export default {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({}),
+				body: JSON.stringify({
+					dateRange: {
+						from: new Date(),
+					}
+				}),
 			}).then((response) => response.json());
 
 			return data;

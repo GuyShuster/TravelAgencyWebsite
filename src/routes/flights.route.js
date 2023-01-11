@@ -108,10 +108,10 @@ router.delete('/:flightId', verifyAuthentication, verifyAdmin, asyncHandler(asyn
 
 router.put('/:flightId/order-flight', verifyAuthentication, asyncHandler(async (req, res) => {
     const { flightId } = req.params;
-    const { numOfTickets, creditCard } = req.body;
+    const { numOfTickets, creditCard, saveCreditCardToDB } = req.body;
 
-    if (!numOfTickets || !creditCard.number || !creditCard.cvv || !creditCard.expiryMonth || !creditCard.expiryYear) {
-        res.status(400).json('Missing credit card info or numOfTickets');
+    if (!numOfTickets || !creditCard.number || !creditCard.cvv || !creditCard.expiryMonth || !creditCard.expiryYear || saveCreditCardToDB === undefined) {
+        res.status(400).json('Missing credit card info or numOfTickets or saveCreditCardToDB');
         return;
     }
 
@@ -123,7 +123,7 @@ router.put('/:flightId/order-flight', verifyAuthentication, asyncHandler(async (
     }
 
     try {
-        await updateUserFlight(req.user, flightId, numOfTickets);
+        await updateUserFlight(req.user, flightId, numOfTickets, saveCreditCardToDB, creditCard);
     } catch (error) {
         res.status(404).json(error.message);
         return;
